@@ -156,17 +156,14 @@ const Users = mongoose.model('Users', {
 // User Signup Endpoint
 app.post('/signup', async(req, res) => {
     try {
-        // ตรวจสอบว่าอีเมลซ้ำหรือไม่
         let checkEmail = await Users.findOne({ email: req.body.email });
         if (checkEmail) {
             return res.status(400).json({ success: false, error: "Existing user found with same email address" });
         }
-        // ตรวจสอบว่ามีชื่อเดียวกันในระบบหรือไม่
         let checkName = await Users.findOne({ name: req.body.username });
         if (checkName) {
             return res.status(400).json({ success: false, error: "Existing user found with same username" });
         }
-        // ถ้าไม่พบชื่อและอีเมลที่ซ้ำกันก็สร้างผู้ใช้ใหม่
         let cart = {};
         for (let i = 0; i < 300; i++) {
             cart[i] = 0;
@@ -189,7 +186,6 @@ app.post('/signup', async(req, res) => {
     }
 });
 
-
 // Creating Endpoint Login with Server
 app.post('/login', async(req, res) => {
     console.log("Request Body: ", req.body);
@@ -201,7 +197,7 @@ app.post('/login', async(req, res) => {
         let user = await Users.findOne({ email });
         if (user) {
             console.log("User Found: ", user);
-            const passCompare = password === user.password; // เปลี่ยนเป็น bcrypt หากใช้
+            const passCompare = password === user.password;
             if (passCompare) {
                 const data = { user: { id: user.id } };
                 const token = jwt.sign(data, 'secret_ecom');
@@ -255,7 +251,7 @@ const fetchUser = async(req, res, next) => {
         try {
             const data = jwt.verify(token, 'secret_ecom');
             req.user = data.user;
-            next(); // Proceed to the next middleware or route handler
+            next();
         } catch (error) {
             return res.status(401).send({ errors: "Please authenticate using a valid token" });
         }
